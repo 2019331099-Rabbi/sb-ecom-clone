@@ -4,9 +4,13 @@ import com.ecommerce.sbecom.payloads.ProductDTO;
 import com.ecommerce.sbecom.payloads.ProductResponse;
 import com.ecommerce.sbecom.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AfterDomainEventPublication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 public class ProductController {
@@ -53,5 +57,12 @@ public class ProductController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.deleteProduct(productId));
+    }
+
+    @PutMapping("/api/admin/products/{productId}/image")
+    public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId, @RequestParam(name = "image") MultipartFile image) throws IOException {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productService.updateProductImage(productId, image));
     }
 }
