@@ -1,10 +1,11 @@
 package com.ecommerce.sbecom.controllers;
 
+import com.ecommerce.sbecom.config.AppConstants;
 import com.ecommerce.sbecom.payloads.ProductDTO;
 import com.ecommerce.sbecom.payloads.ProductResponse;
 import com.ecommerce.sbecom.services.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.AfterDomainEventPublication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,35 +19,52 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/api/admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO, @PathVariable Long categoryId) {
+    public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO, @PathVariable Long categoryId) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(productService.addProduct(productDTO, categoryId));
     }
 
     @GetMapping("/api/public/products")
-    public ResponseEntity<ProductResponse> getAllProducts() {
+    public ResponseEntity<ProductResponse> getAllProducts(
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_ORDER) String sortOrder
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.getAllProducts());
+                .body(productService.getAllProducts(pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("/api/public/categories/{categoryId}/products")
-    public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId) {
+    public ResponseEntity<ProductResponse> getProductsByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_ORDER) String sortOrder
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.searchByCategory(categoryId));
+                .body(productService.searchByCategory(categoryId, pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("/api/public/products/keyword/{keyword}")
-    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword) {
+    public ResponseEntity<ProductResponse> getProductsByKeyword(
+            @PathVariable String keyword,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_ORDER) String sortOrder
+    ) {
         return ResponseEntity
                 .status(HttpStatus.FOUND)
-                .body(productService.searchByKeyword(keyword));
+                .body(productService.searchByKeyword(keyword, pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @PutMapping("/api/admin/products/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long productId, @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductDTO productDTO) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.updateProduct(productId, productDTO));
